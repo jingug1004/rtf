@@ -30,7 +30,24 @@ export default function Home() {
 
   useEffect(() => {
     console.log("l~ useEffect items : ", items);
-  }, [items]);
+
+    const requestOptions = {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    fetch("http://localhost:8080/todo", requestOptions)
+      .then((response) => response.json())
+      .then(
+        (response) => {
+          setItems(response.data);
+        },
+        (error) => {
+          console.log("l~ fetch error ", error);
+          // setItems(error);
+        }
+      );
+  }, []);
 
   const todoItems = items.length > 0 && (
     <Paper style={{ margin: 16 }}>
