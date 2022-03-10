@@ -12,7 +12,7 @@ import { DeleteOutlined } from "@mui/icons-material";
 const Todo = (props) => {
   const [todoItem, setTodoItem] = useState(props.item);
   const [readOnly, setReadOnly] = useState(true);
-  console.log("l~ Todo.js ", todoItem);
+  // console.log("l~ Todo.js ", todoItem);
 
   const doneOnChange = () => {
     setTodoItem({ ...todoItem, done: !todoItem.done });

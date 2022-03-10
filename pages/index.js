@@ -1,21 +1,23 @@
-import Head from "next/head";
-import Image from "next/image";
-import styles from "../styles/Home.module.css";
 import Todo from "../pages/Todo";
 import AddTodo from "../pages/AddTodo";
 import { useEffect, useState } from "react";
 import { Paper, List, Container } from "@mui/material";
+import handler, { call } from "./api/hello";
+import axios from "axios";
 
-export default function Home() {
-  const [items, setItems] = useState([
-    // { id: "ID-0", title: "HW1", done: true },
-    // { id: "ID-1", title: "HW2", done: false },
-  ]);
+const Home = ({ itemsGetInit }) => {
+  const [items, setItems] = useState(itemsGetInit.data);
+  console.log("l~ itemsGetInit : ", itemsGetInit);
 
   const add = (item) => {
     const vSeq = "ID-" + items.length;
+    // **
     // setItems([...items, { id: vSeq, title: item.title, done: false }]);
-    setItems(items.concat({ id: vSeq, title: item.title, done: false }));
+    // setItems(items.concat({ id: vSeq, title: item.title, done: false }));
+    call("/todo", "POST", item).then((response) => {
+      console.log("l~ todo post : ", response);
+      setItems(response.data);
+    });
     console.log("l~ items   const add = (item) => {\n : ", items);
   };
 
@@ -25,29 +27,12 @@ export default function Home() {
   };
 
   const upd = (item) => {
-    setItems(items.map((it, idx) => (it.id === item.id ? item : it)));
+    setItems(items.map((it) => (it.id === item.id ? item : it)));
   };
 
   useEffect(() => {
     console.log("l~ useEffect items : ", items);
-
-    const requestOptions = {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    };
-
-    fetch("http://localhost:8080/todo", requestOptions)
-      .then((response) => response.json())
-      .then(
-        (response) => {
-          setItems(response.data);
-        },
-        (error) => {
-          console.log("l~ fetch error ", error);
-          // setItems(error);
-        }
-      );
-  }, []);
+  }, [items]);
 
   const todoItems = items.length > 0 && (
     <Paper style={{ margin: 16 }}>
@@ -67,4 +52,19 @@ export default function Home() {
       </Container>
     </div>
   );
-}
+};
+
+Home.getInitialProps = async () => {
+  const requestOptions = {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  };
+  const { data: itemsGetInit } = await axios.get(
+    "http://localhost:8080/todo",
+    requestOptions
+  );
+  console.log("l~ data loaded", itemsGetInit);
+  return { itemsGetInit };
+};
+
+export default Home;
