@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  ListItem,
-  ListItemText,
-  InputBase,
-  Checkbox,
-  Paper,
-  Button,
-  Grid,
-  TextField,
-} from "@mui/material";
+import { Button, Grid, Paper, TextField } from "@mui/material";
 
 const AddTodo = (props) => {
   const [addTodoItem, setAddTodoItem] = useState({ title: "" });

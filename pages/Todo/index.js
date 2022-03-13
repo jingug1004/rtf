@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import {
-  ListItem,
-  ListItemText,
-  InputBase,
   Checkbox,
-  ListItemSecondaryAction,
   IconButton,
+  InputBase,
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText,
 } from "@mui/material";
 import { DeleteOutlined } from "@mui/icons-material";
 
 const Todo = (props) => {
   const [todoItem, setTodoItem] = useState(props.item);
   const [readOnly, setReadOnly] = useState(true);
-  // console.log("l~ Todo.js ", todoItem);
 
   const doneOnChange = () => {
     setTodoItem({ ...todoItem, done: !todoItem.done });
@@ -39,11 +38,11 @@ const Todo = (props) => {
   useEffect(() => {
     console.log("l~ useEffect todoItem : ", todoItem);
     props.upd(todoItem);
-  }, [todoItem]);
+  }, [readOnly, todoItem.done]);
 
   return (
     <ListItem>
-      <Checkbox checked={todoItem.done} onClick={doneOnChange} disableRipple />
+      <Checkbox checked={todoItem.done} onChange={doneOnChange} disableRipple />
       <ListItemText>
         <InputBase
           inputProps={{ "aria-label": "naked", readOnly: readOnly }}

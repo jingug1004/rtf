@@ -1,8 +1,8 @@
 import Todo from "../pages/Todo";
 import AddTodo from "../pages/AddTodo";
 import { useEffect, useState } from "react";
-import { Paper, List, Container } from "@mui/material";
-import handler, { call } from "./api/hello";
+import { Container, List, Paper } from "@mui/material";
+import { call } from "./api/hello";
 import axios from "axios";
 
 const Home = ({ itemsGetInit }) => {
@@ -22,12 +22,19 @@ const Home = ({ itemsGetInit }) => {
   };
 
   const del = (item) => {
-    const newItems = items.filter((e) => e.id !== item.id);
-    setItems(newItems);
+    // **
+    // const newItems = items.filter((e) => e.id !== item.id);
+    call("/todo", "DELETE", item).then((response) => {
+      setItems(response.data);
+    });
   };
 
   const upd = (item) => {
-    setItems(items.map((it) => (it.id === item.id ? item : it)));
+    // **
+    // setItems(items.map((it) => (it.id === item.id ? item : it)));
+    call("/todo", "PUT", item).then((response) => {
+      setItems(response.data);
+    });
   };
 
   useEffect(() => {
