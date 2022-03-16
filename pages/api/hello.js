@@ -26,6 +26,14 @@ export default function handler(req, res) {
   //   );
 }
 
+/**
+ * call 메서드
+ *
+ * @param api /tod0
+ * @param method GET/POST/PUT/DELETE
+ * @param req 추가, 수정, 삭제하는 선택 단일값
+ * @returns {Promise<AxiosResponse<any>>} axios api 호출 후 결과값(보통은 id에 대한 조회값)
+ */
 export function call(api, method, req) {
   const options = {
     // **
@@ -53,6 +61,9 @@ export function call(api, method, req) {
       return response.data;
     })
     .catch((error) => {
-      console.log("l~ error : ", error);
+      console.log("l~ api response error : ", error);
+      if (error === 403) {
+        window.location.href = "http://localhost:3000/login";
+      }
     });
 }

@@ -1,12 +1,15 @@
 import Todo from "../pages/Todo";
 import AddTodo from "../pages/AddTodo";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, List, Paper } from "@mui/material";
 import { call } from "./api/hello";
 import axios from "axios";
+import Link from "next/link";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
 
 const Home = ({ itemsGetInit }) => {
-  const [items, setItems] = useState(itemsGetInit.data);
+  const [items, setItems] = useState(itemsGetInit);
   console.log("l~ itemsGetInit : ", itemsGetInit);
 
   const add = (item) => {
@@ -51,12 +54,28 @@ const Home = ({ itemsGetInit }) => {
     </Paper>
   );
 
+  const Copyright = () => {
+    return (
+      <Typography variant={"body2"} color={"textSecondary"} align={"center"}>
+        {"Copyright @ "}
+        ing engineer, {new Date().getFullYear()}
+        {"."}
+      </Typography>
+    );
+  };
+
   return (
     <div className={"App"}>
       <Container maxWidth={"md"}>
+        <Link href={"/login"}>
+          <a />
+        </Link>
         <AddTodo add={add} />
         <div className={"TodoList"}>{todoItems} </div>
       </Container>
+      <Box mt={5}>
+        <Copyright />
+      </Box>
     </div>
   );
 };
@@ -66,10 +85,22 @@ Home.getInitialProps = async () => {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   };
-  const { data: itemsGetInit } = await axios.get(
-    "http://localhost:8080/todo",
-    requestOptions
-  );
+
+  let itemsGetInit = [];
+
+  await axios
+    .get("http://localhost:8080/todo", requestOptions)
+    .then((response) => {
+      console.log("l~ getInitialProps response : ", response);
+      itemsGetInit = response;
+    })
+    .catch((error) => {
+      console.log("l~ api response error : ", error);
+      if (typeof window !== "undefined") {
+        console.log("l~ api 222222222 response error : ", error);
+        window.location.href = "http://localhost:3000/login";
+      }
+    });
   console.log("l~ data loaded", itemsGetInit);
   return { itemsGetInit };
 };
