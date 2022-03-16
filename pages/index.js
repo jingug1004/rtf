@@ -7,8 +7,11 @@ import axios from "axios";
 import Link from "next/link";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import useRouter from "next/router";
 
 const Home = ({ itemsGetInit }) => {
+  const router = useRouter;
+
   const [items, setItems] = useState(itemsGetInit);
   console.log("l~ itemsGetInit : ", itemsGetInit);
 
@@ -42,6 +45,10 @@ const Home = ({ itemsGetInit }) => {
 
   useEffect(() => {
     console.log("l~ useEffect items : ", items);
+    if (itemsGetInit.status === 403) {
+      console.log("l~ error itemsGetInit : ", itemsGetInit);
+      router.push("/login");
+    }
   }, [items]);
 
   const todoItems = items.length > 0 && (
@@ -95,11 +102,7 @@ Home.getInitialProps = async () => {
       itemsGetInit = response;
     })
     .catch((error) => {
-      console.log("l~ api response error : ", error);
-      if (typeof window !== "undefined") {
-        console.log("l~ api 222222222 response error : ", error);
-        window.location.href = "http://localhost:3000/login";
-      }
+      itemsGetInit = error;
     });
   console.log("l~ data loaded", itemsGetInit);
   return { itemsGetInit };
