@@ -2,6 +2,8 @@
 import { API_BASE_URL } from "../../app-config";
 import axios from "axios";
 
+const ACCESS_TOKEN = "ACCESS_TOKEN";
+
 export default function handler(req, res) {
   // res.status(200).json({ name: 'John Doe' })
 
@@ -27,22 +29,29 @@ export default function handler(req, res) {
 }
 
 /**
- * call 메서드
+ * apiLoad 메서드
  *
  * @param api /tod0
  * @param method GET/POST/PUT/DELETE
  * @param req 추가, 수정, 삭제하는 선택 단일값
  * @returns {Promise<AxiosResponse<any>>} axios api 호출 후 결과값(보통은 id에 대한 조회값)
  */
-export function call(api, method, req) {
+export function apiLoad(api, method, req) {
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  const accessToken = localStorage.getItem(ACCESS_TOKEN);
+  if (accessToken) {
+    headers.Authorization = "Bearer " + accessToken;
+  }
+
   const options = {
     // **
     // headers: new Headers({
     //   "Content-Type": "application/json",
     // }),
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: headers,
     url: API_BASE_URL + api,
     method: method,
   };

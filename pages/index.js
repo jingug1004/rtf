@@ -2,25 +2,27 @@ import Todo from "../pages/Todo";
 import AddTodo from "../pages/AddTodo";
 import React, { useEffect, useState } from "react";
 import { Container, List, Paper } from "@mui/material";
-import { call } from "./api/hello";
+import { apiLoad } from "./api/hello";
 import axios from "axios";
 import Link from "next/link";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import useRouter from "next/router";
 
+const ACCESS_TOKEN = "ACCESS_TOKEN";
+
 const Home = ({ itemsGetInit }) => {
   const router = useRouter;
 
-  const [items, setItems] = useState(itemsGetInit);
-  console.log("l~ itemsGetInit : ", itemsGetInit);
+  const [items, setItems] = useState(itemsGetInit.data);
+  console.log("l~ itemsGetInit : ", itemsGetInit.data);
 
   const add = (item) => {
     const vSeq = "ID-" + items.length;
     // **
     // setItems([...items, { id: vSeq, title: item.title, done: false }]);
     // setItems(items.concat({ id: vSeq, title: item.title, done: false }));
-    call("/todo", "POST", item).then((response) => {
+    apiLoad("/todo", "POST", item).then((response) => {
       console.log("l~ todo post : ", response);
       setItems(response.data);
     });
@@ -30,7 +32,7 @@ const Home = ({ itemsGetInit }) => {
   const del = (item) => {
     // **
     // const newItems = items.filter((e) => e.id !== item.id);
-    call("/todo", "DELETE", item).then((response) => {
+    apiLoad("/todo", "DELETE", item).then((response) => {
       setItems(response.data);
     });
   };
@@ -38,7 +40,7 @@ const Home = ({ itemsGetInit }) => {
   const upd = (item) => {
     // **
     // setItems(items.map((it) => (it.id === item.id ? item : it)));
-    call("/todo", "PUT", item).then((response) => {
+    apiLoad("/todo", "PUT", item).then((response) => {
       setItems(response.data);
     });
   };
@@ -87,25 +89,47 @@ const Home = ({ itemsGetInit }) => {
   );
 };
 
-Home.getInitialProps = async () => {
-  const requestOptions = {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+export const getServerSideProps = async ({ req }) => {
+  let accessToken = "";
+  console.log("l~ getInitialProps req : ", accessToken);
+
+  const vHeaders = req.headers;
+
+  const getCookie = (name) => {
+    const value = vHeaders.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
+    return value ? value[2] : null;
   };
 
-  let itemsGetInit = [];
+  accessToken = getCookie(ACCESS_TOKEN);
+
+  vHeaders["Content-Type"] = "application/json";
+  vHeaders["Authorization"] = `Bearer ${accessToken}`;
+
+  console.log("l~ vHeaders req : ", vHeaders);
+
+  const requestOptions = {
+    method: "GET",
+    headers: vHeaders,
+  };
+
+  console.log(
+    "l~ vHeaders JSON.stringify( req : ",
+    JSON.stringify(requestOptions)
+  );
+
+  let itemsGetInit;
 
   await axios
     .get("http://localhost:8080/todo", requestOptions)
     .then((response) => {
       console.log("l~ getInitialProps response : ", response);
-      itemsGetInit = response;
+      itemsGetInit = response.data;
     })
     .catch((error) => {
       itemsGetInit = error;
     });
-  console.log("l~ data loaded", itemsGetInit);
-  return { itemsGetInit };
+  console.log("l~ data loaded : ", itemsGetInit);
+  return { props: { itemsGetInit } };
 };
 
 export default Home;
