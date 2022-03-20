@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Grid,
@@ -10,16 +10,14 @@ import {
 } from "@mui/material";
 import { apiLoad } from "../api/hello";
 import useRouter from "next/router";
+import { getCookie, setCookie } from "../../plainCookie";
 
-const login = (props) => {
+const ACCESS_TOKEN = "ACCESS_TOKEN";
+
+const login = () => {
   const router = useRouter;
 
-  const setCookie = (name, value, day) => {
-    var date = new Date();
-    date.setTime(date.getTime() + day * 60 * 60 * 24 * 1000);
-    document.cookie =
-      name + "=" + value + ";expires=" + date.toUTCString() + ";path=/";
-  };
+  // const [temp, setTemp] = useState(reqData.con);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -33,12 +31,20 @@ const login = (props) => {
     apiLoad("/auth/signin", "POST", userDTO).then((response) => {
       console.log("l~ /auth/signin response : ", response);
       if (response.token) {
-        localStorage.setItem("ACCESS_TOKEN", response.token);
-        setCookie("ACCESS_TOKEN", response.token, 1);
+        localStorage.setItem(ACCESS_TOKEN, response.token);
+        setCookie(ACCESS_TOKEN, response.token, 0.1);
+        // setTemp(response.token);
         router.push("/");
       }
     });
   };
+
+  // useEffect(() => {
+  // const a01 = localStorage.getItem(ACCESS_TOKEN);
+  // if (temp !== null || temp !== "") {
+  //   router.push("/");
+  // }
+  // }, []);
 
   return (
     <Container component={"main"} maxWidth={"xs"} style={{ marginTop: "8%" }}>
@@ -92,6 +98,25 @@ const login = (props) => {
       </form>
     </Container>
   );
+};
+
+export const getServerSideProps = async ({ req, res, params }) => {
+  // let reqData;
+  //
+  // const vHeaders = req.headers;
+  // const accessToken = getCookie(vHeaders, ACCESS_TOKEN);
+  // console.dir(req);
+  // console.log("l~ vHeaders : ", vHeaders);
+  // console.log("l~ accessToken : ", accessToken);
+  // reqData = { con: accessToken };
+  //
+  // return { props: { reqData } };
+  if (!req.headers.referer) {
+    res.statusCode = 302;
+    res.setHeader("Location", `/`); // Replace <link> with your url link
+    res.end();
+  }
+  return { props: {} };
 };
 
 export default login;

@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { DeleteOutlined } from "@mui/icons-material";
 
-const Todo = (props) => {
+const todo = (props) => {
   const [todoItem, setTodoItem] = useState(props.item);
   const [readOnly, setReadOnly] = useState(true);
 
@@ -59,7 +59,7 @@ const Todo = (props) => {
       </ListItemText>
 
       <ListItemSecondaryAction>
-        <IconButton aria-label={"Delete Todo"} onClick={deleteEventHandler}>
+        <IconButton aria-label={"Delete todo"} onClick={deleteEventHandler}>
           <DeleteOutlined />
         </IconButton>
       </ListItemSecondaryAction>
@@ -67,4 +67,4 @@ const Todo = (props) => {
   );
 };
 
-export default Todo;
+export default todo;

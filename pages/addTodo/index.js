@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Button, Grid, Paper, TextField } from "@mui/material";
 
-const AddTodo = (props) => {
+const addTodo = (props) => {
   const [addTodoItem, setAddTodoItem] = useState({ title: "" });
-  console.log("l~ AddTodo.js ", addTodoItem);
+  console.log("l~ addTodo.js ", addTodoItem);
 
   const onInputChange = (e) => {
     setAddTodoItem({ ...addTodoItem, title: e.target.value });
@@ -25,7 +25,7 @@ const AddTodo = (props) => {
       <Grid container>
         <Grid xs={11} md={11} item style={{ paddingRight: 16 }}>
           <TextField
-            placeholder={"Add Todo here"}
+            placeholder={"Add todo here"}
             fullWidth
             onChange={onInputChange}
             value={addTodoItem.title}
@@ -48,4 +48,4 @@ const AddTodo = (props) => {
   );
 };
 
-export default AddTodo;
+export default addTodo;

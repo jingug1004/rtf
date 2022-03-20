@@ -1,21 +1,35 @@
-import Todo from "../pages/Todo";
-import AddTodo from "../pages/AddTodo";
+import Todo from "./todo";
+import AddTodo from "./addTodo";
 import React, { useEffect, useState } from "react";
-import { Container, List, Paper } from "@mui/material";
+import {
+  AppBar,
+  Button,
+  Container,
+  Grid,
+  List,
+  Paper,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { apiLoad } from "./api/hello";
 import axios from "axios";
 import Link from "next/link";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import useRouter from "next/router";
+import { deleteCookie, getCookie } from "../plainCookie";
 
 const ACCESS_TOKEN = "ACCESS_TOKEN";
 
 const Home = ({ itemsGetInit }) => {
   const router = useRouter;
 
-  const [items, setItems] = useState(itemsGetInit.data);
-  console.log("l~ itemsGetInit : ", itemsGetInit.data);
+  const [items, setItems] = useState(itemsGetInit);
+  const [loading, setLoading] = useState(true);
+  const [isAccessToken, setIsAccessToken] = useState(false);
+  console.log(
+    "l~ const [items, setItems] = useState(itemsGetInit) : \n",
+    items
+  );
 
   const add = (item) => {
     const vSeq = "ID-" + items.length;
@@ -45,15 +59,36 @@ const Home = ({ itemsGetInit }) => {
     });
   };
 
+  const signout = () => {
+    localStorage.setItem(ACCESS_TOKEN, null);
+    // setCookie("ACCESS_TOKEN", response.token, 0.1);
+
+    // const date = new Date();
+    // document.cookie =
+    //   name + "= " + "; expires=" + date.toUTCString() + "; path=/";
+    deleteCookie(ACCESS_TOKEN);
+    router.push("/login");
+  };
+
   useEffect(() => {
     console.log("l~ useEffect items : ", items);
-    if (itemsGetInit.status === 403) {
+    console.log("l~ useEffect itemsGetInit items : ", itemsGetInit);
+    if (itemsGetInit.statCod === 403) {
       console.log("l~ error itemsGetInit : ", itemsGetInit);
       router.push("/login");
     }
+
+    if (items !== [] || items.length > 0) {
+      setLoading(false);
+    }
+
+    const a02 = localStorage.getItem(ACCESS_TOKEN);
+    if (a02 !== null || a02 !== "") {
+      setIsAccessToken(true);
+    }
   }, [items]);
 
-  const todoItems = items.length > 0 && (
+  const todoItems = items !== undefined && items.length > 0 && (
     <Paper style={{ margin: 16 }}>
       <List>
         {items.map((item, idx) => (
@@ -61,6 +96,23 @@ const Home = ({ itemsGetInit }) => {
         ))}
       </List>
     </Paper>
+  );
+
+  const NavigationBar = () => (
+    <AppBar position={"static"}>
+      <Toolbar>
+        <Grid justifyContent={"space-between"} container>
+          <Grid item>
+            <Typography variant={"h6"}>오늘의 할일</Typography>
+          </Grid>
+          <Grid>
+            <Button color={"inherit"} onClick={signout}>
+              로그아웃
+            </Button>
+          </Grid>
+        </Grid>
+      </Toolbar>
+    </AppBar>
   );
 
   const Copyright = () => {
@@ -73,12 +125,15 @@ const Home = ({ itemsGetInit }) => {
     );
   };
 
-  return (
-    <div className={"App"}>
+  const todoListPage = (
+    <div>
+      <NavigationBar />
       <Container maxWidth={"md"}>
-        <Link href={"/login"}>
-          <a />
-        </Link>
+        {/*{!isAccessToken && (*/}
+        {/*  <Link href={"/login"}>*/}
+        {/*    <a />*/}
+        {/*  </Link>*/}
+        {/*)}*/}
         <AddTodo add={add} />
         <div className={"TodoList"}>{todoItems} </div>
       </Container>
@@ -87,6 +142,16 @@ const Home = ({ itemsGetInit }) => {
       </Box>
     </div>
   );
+
+  let content = <h1> 로딩 중... </h1>;
+
+  if (!loading) {
+    content = todoListPage;
+  }
+
+  console.log("l~ loading : ", loading);
+
+  return <div className={"App"}>{content}</div>;
 };
 
 export const getServerSideProps = async ({ req }) => {
@@ -95,12 +160,12 @@ export const getServerSideProps = async ({ req }) => {
 
   const vHeaders = req.headers;
 
-  const getCookie = (name) => {
-    const value = vHeaders.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
-    return value ? value[2] : null;
-  };
+  // const getCookie = (name) => {
+  //   const value = vHeaders.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
+  //   return value ? value[2] : null;
+  // };
 
-  accessToken = getCookie(ACCESS_TOKEN);
+  accessToken = getCookie(vHeaders, ACCESS_TOKEN);
 
   vHeaders["Content-Type"] = "application/json";
   vHeaders["Authorization"] = `Bearer ${accessToken}`;
@@ -123,10 +188,23 @@ export const getServerSideProps = async ({ req }) => {
     .get("http://localhost:8080/todo", requestOptions)
     .then((response) => {
       console.log("l~ getInitialProps response : ", response);
-      itemsGetInit = response.data;
+      itemsGetInit = response.data.data;
     })
     .catch((error) => {
-      itemsGetInit = error;
+      console.log(
+        "l~ start ================================================== "
+      );
+      console.dir(error.response.data);
+      console.log("l~ end ================================================== ");
+
+      let errorRes = {};
+      if (error.response.status === 403) {
+        console.log("l~ error itemsGetInit : ", itemsGetInit);
+        errorRes["statCod"] = 403;
+        errorRes["data"] = [];
+      }
+      error.response.data = [];
+      itemsGetInit = errorRes;
     });
   console.log("l~ data loaded : ", itemsGetInit);
   return { props: { itemsGetInit } };
