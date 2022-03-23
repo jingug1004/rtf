@@ -164,6 +164,7 @@ export const getServerSideProps = async ({ req }) => {
   //   const value = vHeaders.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
   //   return value ? value[2] : null;
   // };
+  console.log("l~ vHeaders : ", vHeaders);
 
   accessToken = getCookie(vHeaders, ACCESS_TOKEN);
 
