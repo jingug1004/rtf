@@ -42,14 +42,14 @@
 
 import React from "react";
 import Head from "next/head";
-import wrapper from ".././store/configureStore";
+import wrapper from "../store/configureStore";
 import PropTypes from "prop-types";
 
 const Test = ({ Component, store }) => {
   return (
     <>
       <Head>
-        <title>NodeBird</title>
+        <title>do-next-app & rt</title>
       </Head>
       <Component />
     </>

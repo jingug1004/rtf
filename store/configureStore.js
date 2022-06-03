@@ -1,8 +1,7 @@
 import { applyMiddleware, compose, createStore } from "redux";
-import createSagaMiddleware from "redux-saga"; // redux-saga를 생성하기 위한 라이브러리
+import createSagaMiddleware from "redux-saga"; // redux-saga를 생성하기 위한 라이브러리, next와 redux-saga를 연결하기 위한 라이브러리
 import { createWrapper } from "next-redux-wrapper";
 import { composeWithDevTools } from "redux-devtools-extension";
-import withReduxSaga from "next-redux-saga"; // next와 redux-saga를 연결하기 위한 라이브러리
 import rootSaga from "../saga/rootSaga"; // sagas의 index.js를 가지고온다.
 import reducer from "../reducer/rootReducer";
 
